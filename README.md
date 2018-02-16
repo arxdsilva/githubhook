@@ -1,29 +1,29 @@
-githubhook
+webhook
 ===============================================
 
-Golang parser for [github webhooks][gh-webhook]. Not a server, though it could
+Golang parser for [webhooks][webhook]. Not a server, though it could
 be integrated with one.
 
-[![Build Status](https://travis-ci.org/rjz/githubhook.svg?branch=master)](https://travis-ci.org/rjz/githubhook)
-[![Go Report Card](https://goreportcard.com/badge/github.com/rjz/githubhook)](https://goreportcard.com/report/github.com/rjz/githubhook)
-[![GoDoc](https://godoc.org/github.com/rjz/githubhook?status.svg)](https://godoc.org/github.com/rjz/githubhook)
+[![Build Status](https://travis-ci.org/arxdsilva/webhook.svg?branch=master)](https://travis-ci.org/arxdsilva/webhook)
+[![Go Report Card](https://goreportcard.com/badge/github.com/arxdsilva/webhook)](https://goreportcard.com/report/github.com/arxdsilva/githubhook)
+[![GoDoc](https://godoc.org/github.com/arxdsilva/githubhook?status.svg)](https://godoc.org/github.com/arxdsilva/githubhook)
 
 Installation
 -----------------------------------------------
 
 ```ShellSession
-$ go get gopkg.in/rjz/githubhook.v0
+$ go get gopkg.in/arxdsilva/webhook.v0
 ```
 
 Usage
 -----------------------------------------------
 
 Given an incoming `*http.Request` representing a webhook signed with a `secret`,
-use `githubhook` to validate and parse its content:
+use `webhook` to validate and parse its content:
 
 ```go
 secret := []byte("don't tell!")
-hook, err := githubhook.Parse(secret, req)
+hook, err := webhook.Parse(secret, req)
 ```
 
 Plays nicely with the [google/go-github][gh-go-github] client!
@@ -35,5 +35,5 @@ if err := json.Unmarshal(hook.Payload, &evt); err != nil {
 }
 ```
 
-[gh-webhook]: https://developer.github.com/webhooks/
+[webhook]: https://developer.github.com/webhooks/
 [gh-go-github]: https://github.com/google/go-github
