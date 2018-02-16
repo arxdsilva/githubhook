@@ -12,6 +12,12 @@ import (
 	"strings"
 )
 
+var (
+	ErrNoSignature      = errors.New("No signature!")
+	ErrUnknownMethod    = errors.New("Unknown method!")
+	ErrInvalidSignature = errors.New("Invalid signature")
+)
+
 // Hook is an inbound github webhook
 type Hook struct {
 
@@ -68,10 +74,10 @@ func (h *Hook) Extract(dst interface{}) error {
 func New(req *http.Request) (hook *Hook, err error) {
 	hook = new(Hook)
 	if !strings.EqualFold(req.Method, "POST") {
-		return nil, errors.New("Unknown method!")
+		return nil, ErrUnknownMethod
 	}
 	if hook.Signature = req.Header.Get("x-hub-signature"); len(hook.Signature) == 0 {
-		return nil, errors.New("No signature!")
+		return nil, ErrNoSignature
 	}
 	hook.Payload, err = ioutil.ReadAll(req.Body)
 	return
@@ -81,7 +87,7 @@ func New(req *http.Request) (hook *Hook, err error) {
 func Parse(secret []byte, req *http.Request) (hook *Hook, err error) {
 	hook, err = New(req)
 	if err == nil && !hook.SignedBy(secret) {
-		err = errors.New("Invalid signature")
+		return hook, ErrInvalidSignature
 	}
 	return
 }
