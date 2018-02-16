@@ -1,5 +1,5 @@
 // Package githubhook implements handling and verification of github webhooks
-package githubhook
+package webhook
 
 import (
 	"crypto/hmac"
@@ -54,10 +54,8 @@ func (h *Hook) SignedBy(secret []byte) bool {
 	if len(h.Signature) != signatureLength || !strings.HasPrefix(h.Signature, signaturePrefix) {
 		return false
 	}
-
 	actual := make([]byte, 20)
 	hex.Decode(actual, []byte(h.Signature[5:]))
-
 	return hmac.Equal(signBody(secret, h.Payload), actual)
 }
 
@@ -72,19 +70,9 @@ func New(req *http.Request) (hook *Hook, err error) {
 	if !strings.EqualFold(req.Method, "POST") {
 		return nil, errors.New("Unknown method!")
 	}
-
 	if hook.Signature = req.Header.Get("x-hub-signature"); len(hook.Signature) == 0 {
 		return nil, errors.New("No signature!")
 	}
-
-	if hook.Event = req.Header.Get("x-github-event"); len(hook.Event) == 0 {
-		return nil, errors.New("No event!")
-	}
-
-	if hook.Id = req.Header.Get("x-github-delivery"); len(hook.Id) == 0 {
-		return nil, errors.New("No event Id!")
-	}
-
 	hook.Payload, err = ioutil.ReadAll(req.Body)
 	return
 }

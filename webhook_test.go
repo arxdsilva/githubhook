@@ -1,14 +1,15 @@
-package githubhook_test
+package webhook_test
 
 import (
 	"crypto/hmac"
 	"crypto/sha1"
 	"encoding/hex"
 	"fmt"
-	"github.com/rjz/githubhook"
 	"net/http"
 	"strings"
 	"testing"
+
+	"github.com/arxdsilva/webhook"
 )
 
 const testSecret = "foobar"
@@ -20,12 +21,12 @@ func expectErrorMessage(t *testing.T, msg string, err error) {
 }
 
 func expectNewError(t *testing.T, msg string, r *http.Request) {
-	_, err := githubhook.New(r)
+	_, err := webhook.New(r)
 	expectErrorMessage(t, msg, err)
 }
 
 func expectParseError(t *testing.T, msg string, r *http.Request) {
-	_, err := githubhook.Parse([]byte(testSecret), r)
+	_, err := webhook.Parse([]byte(testSecret), r)
 	expectErrorMessage(t, msg, err)
 }
 
@@ -47,37 +48,17 @@ func TestMissingSignature(t *testing.T) {
 	expectNewError(t, "No signature!", r)
 }
 
-func TestMissingEvent(t *testing.T) {
-	r, _ := http.NewRequest("POST", "/path", nil)
-	r.Header.Add("x-hub-signature", "bogus signature")
-	expectNewError(t, "No event!", r)
-}
-
-func TestMissingEventId(t *testing.T) {
-	r, _ := http.NewRequest("POST", "/path", nil)
-	r.Header.Add("x-hub-signature", "bogus signature")
-	r.Header.Add("x-github-event", "bogus event")
-	expectNewError(t, "No event Id!", r)
-}
-
 func TestInvalidSignature(t *testing.T) {
 	r, _ := http.NewRequest("POST", "/path", strings.NewReader("..."))
 	r.Header.Add("x-hub-signature", "bogus signature")
-	r.Header.Add("x-github-event", "bogus event")
-	r.Header.Add("x-github-delivery", "bogus id")
 	expectParseError(t, "Invalid signature", r)
 }
 
 func TestValidSignature(t *testing.T) {
-
 	body := "{}"
-
 	r, _ := http.NewRequest("POST", "/path", strings.NewReader(body))
 	r.Header.Add("x-hub-signature", signature(body))
-	r.Header.Add("x-github-event", "bogus event")
-	r.Header.Add("x-github-delivery", "bogus id")
-
-	if _, err := githubhook.Parse([]byte(testSecret), r); err != nil {
+	if _, err := webhook.Parse([]byte(testSecret), r); err != nil {
 		t.Error(fmt.Sprintf("Unexpected error '%s'", err))
 	}
 }
