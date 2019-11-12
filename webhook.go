@@ -46,7 +46,7 @@ type Hook struct {
 const signaturePrefix = "sha1="
 const signatureLength = 45 // len(SignaturePrefix) + len(hex(sha1))
 
-func signBody(secret, body []byte) []byte {
+func SignBody(secret, body []byte) []byte {
 	computed := hmac.New(sha1.New, secret)
 	computed.Write(body)
 	return []byte(computed.Sum(nil))
@@ -62,7 +62,7 @@ func (h *Hook) SignedBy(secret []byte) bool {
 	}
 	actual := make([]byte, 20)
 	hex.Decode(actual, []byte(h.Signature[5:]))
-	return hmac.Equal(signBody(secret, h.Payload), actual)
+	return hmac.Equal(SignBody(secret, h.Payload), actual)
 }
 
 // Extract unmarshals Payload into a destination interface.
